@@ -87,8 +87,9 @@ function transmitData() {
 // ********************************************************************
 //  Send Cal
 // ********************************************************************
-function onCalsend() {
+function onCalSend() {
   calCommand = 1;
+  console.log("onCalSend event!");
 }
 
 
