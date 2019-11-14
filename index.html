@@ -1,0 +1,77 @@
+﻿<!DOCTYPE html>
+<html lang="en">
+  <head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1">
+    <title>Fukuda Denshi RPR System</title>
+    <link rel="icon" sizes="192x192" href="favicon.png">
+    <link rel="stylesheet" href="style.css">
+  </head>
+  <body>
+      <div class="p2p-media">
+
+        <!-- Video(Remote) -->
+        <div class="remote-streams" id="js-remote-streams"></div>
+
+        <div class="local-stream">
+          <!-- Title, button, LAbles -->
+          <h1 class="heading">Remote Pulmonary Rehabilitation System</h1>
+          <p class="logo">
+            Fukuda Denshi Co., Ltd.
+          </p>
+          <p class="note">
+            <br>
+            Mode:
+            <a href="#">mesh</a> / <a href="#sfu">sfu</a>
+            <br>
+
+            <span id="js-room-mode"></span>:
+            <input type="text" placeholder="Room Name" id="js-room-id" value="001" style="width:100px;">
+            <br>
+            <button class="buttons" id="js-join-trigger">Join</button>
+            <button class="buttons" id="js-leave-trigger">Leave</button>
+          </p>
+
+          <!-- Video(Local) -->
+          <video id="js-local-stream"></video>
+        </div>
+
+        <!-- Paramaters -->
+        <div class="parameters">
+          <c class="colorPR">  <a class="note">PR[bpm] </a><a class="data" id="textPR">-- </a></c>
+          <c class="colorRR">  <a class="note">RR[bpm] </a><a class="data" id="textRR">-- </a></c>
+          <c class="colorSpO2"><a class="note">SpO2[%] </a><a class="data" id="statusSpo2">-- </a></c>
+          <c class="colorOther"><a class="note">Battery[%] </a><a class="note" id="statusBatteryLavel">-- </a></c>
+        </div>
+
+        <div id="canvas_wrapper">
+          <canvas id="waveformCanvas"></canvas>
+        </div>
+      </div>
+
+      <!-- Messages and button -->
+      <div>
+        <pre class="messages" id="js-messages"</pre>
+      </div>
+
+      <div class="meta">
+        <input type="text" id="js-local-text">
+        <button id="js-send-trigger" style="background:''; width:250px">Send ECG Waveforms</button>
+        <button id="js-send-cal"     style="background:''; width:100px">CAL</button>
+        <p id="js-meta"></p>
+      </div>
+
+
+    <script type="text/javascript" src="https://code.jquery.com/jquery-3.2.1.min.js"></script>
+    <script type="text/javascript" src="//cdn.webrtc.ecl.ntt.com/skyway-latest.js"></script>
+    <script type="text/javascript" src="key.js"></script>
+    <script type="text/javascript" src="webRTC.js"></script>
+
+    <script type="text/javascript" src="heartRateSensor.js"></script>
+    <script type="text/javascript" src="app.js"></script>
+
+    <script type="text/javascript" src="displayWaveforms.js"></script>
+    <script type="text/javascript" src="ecgData.js"></script>
+
+  </body>
+</html>
