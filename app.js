@@ -122,7 +122,9 @@ window.onload = function () {
     const sendTrigger = document.getElementById('js-send-trigger');
     localText.style.display = "none";     // Patient mode (Hide button and text)
     sendTrigger.style.display = "none";
-    sendCal.style.display = "none";
   }
+
+  // Hide CAL button for all mode
+  sendCal.style.display = "none";
 
 }
