@@ -123,7 +123,7 @@ let msg = "";
           }
         }
       });
-      messages.textContent = msg + `Received[bps]=${bufR.toFixed(2)}, Sent[bps]=${bufS.toFixed(2)}\n`;
+      messages.textContent = msg + `Received[Mbps]=${bufR.toFixed(2)}, Sent[Mbps]=${bufS.toFixed(2)}\n`;
     }
     
     room.on('data', ({ data, src }) => {
