@@ -1,7 +1,10 @@
+
 ﻿const Peer = window.Peer;
 var room;
 var peer;
 var youJoyned = 0;
+let timerStats;
+let msg = "";
 
 (async function main() {
   const localVideo = document.getElementById('js-local-stream');
@@ -15,7 +18,6 @@ var youJoyned = 0;
   const messages = document.getElementById('js-messages');
   const meta = document.getElementById('js-meta');
   const sdkSrc = document.querySelector('script[src*=skyway]');
-
 
   meta.innerText = `
     UA: ${navigator.userAgent}
@@ -63,13 +65,20 @@ var youJoyned = 0;
     });
 
     room.once('open', () => {
-      messages.textContent += '=== You joined ===\n';
+      msg = '=== You joined ===\n';
+      messages.textContent = msg;
       joinTrigger.style = "background:#00F00F";
       youJoyned = 1;
+      console.log("Mode: " + roomMode.textContent);
+      
     });
     room.on('peerJoin', peerId => {
-      messages.textContent += `=== ${peerId} joined ===\n`;
+      msg += `=== ${peerId} joined ===\n`;
+      messages.textContent = msg;
     });
+
+    let bytesReceivedPrevious = 0;     // Previous sample data of bytesReceived
+    let bytesSentPrevious = 0;         // Previous sample data of bytesSent 
 
     // Render remote stream for new peer join in the room
     room.on('stream', async stream => {
@@ -80,8 +89,43 @@ var youJoyned = 0;
       newVideo.setAttribute('data-peer-id', stream.peerId);
       remoteVideos.append(newVideo);
       await newVideo.play().catch(console.error);
+
+      // Get data volume by using getStats API
+      timerStats = setInterval(async () => {
+        // Get peer connection followed by room mode
+        if(roomMode.textContent == "mesh"){
+          const pcs = room.getPeerConnections();
+          for ( [peerId, pc] of Object.entries(pcs) ) {
+            getRTCStats(await pc.getStats());
+          }
+        } else if(roomMode.textContext == "sfu"){
+          const pc = room.getPeerConnection();
+          getRTCStats(await pc.getStats());
+        }
+      },1000);
     });
 
+    // Get bytesReceived and bytesSent from stats
+    function getRTCStats(stats) {
+      let bufR;
+      let bufS;
+      // stats is [{},{},{},...]
+      stats.forEach((report) => {
+        // When RTCStatsType of report is 'inbound-rtp' or 'outbound-rtp' Object and kind is 'video'.
+        if(report.kind == "video") {
+          if(report.type == "inbound-rtp") {
+            bufR = (report.bytesReceived - bytesReceivedPrevious)*8/1024/1024;
+            bytesReceivedPrevious = report.bytesReceived; // Total recived volume of the stream
+          }
+          if(report.type == "outbound-rtp") {
+            bufS = (report.bytesSent - bytesSentPrevious)*8/1024/1024;
+            bytesSentPrevious = report.bytesSent; // Total sent volume of the stream
+          }
+        }
+      });
+      messages.textContent = msg + `Received[bps]=${bufR.toFixed(2)}, Sent[bps]=${bufS.toFixed(2)}\n`;
+    }
+    
     room.on('data', ({ data, src }) => {
       if(applicationMode ==1){
         // Doctor mode *********************************************
@@ -121,12 +165,15 @@ var youJoyned = 0;
       remoteVideo.srcObject = null;
       remoteVideo.remove();
 
-      messages.textContent += `=== ${peerId} left ===\n`;
+      clearInterval(timerStats);    // Stop timer for getStats
+      msg += `=== ${peerId} left ===\n`;
+      messages.textContent = msg;
     });
 
     // for closing myself
     room.once('close', () => {
-      messages.textContent += '== You left ===\n';
+      msg += '== You left ===\n';
+      messages.textContent = msg; 
       joinTrigger.style = "background:''";
       youJoyned = 0;
       Array.from(remoteVideos.children).forEach(remoteVideo => {
@@ -167,8 +214,6 @@ var youJoyned = 0;
       tmpData[4] = 0;  // Reserved
       room.send(tmpData);
     }
-
-
   });
 
   peer.on('error', console.error);
